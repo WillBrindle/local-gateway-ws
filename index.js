@@ -29,13 +29,6 @@ const wss = new WebSocketServer({
 wss.on("connection", async (socket, request) => {
   socket.uniqueId = uuid();
   console.log(`${socket.uniqueId} connected`);
-  // send message to server
-
-  if (process.env.CONNECT_URL) {
-    const response = await axios.post(process.env.CONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
-    console.log(response.data)
-    socket.send(JSON.stringify(response.data));
-  }
 
   socket.on("message", async (data) => {
     console.log(`${socket.uniqueId} message received`);
@@ -53,6 +46,12 @@ wss.on("connection", async (socket, request) => {
       socket.send(JSON.stringify(response.data));
     }
   });
+  
+  if (process.env.CONNECT_URL) {
+    const response = await axios.post(process.env.CONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
+    console.log(response.data)
+    socket.send(JSON.stringify(response.data));
+  }
 });
 
 const app = express();
