@@ -34,7 +34,7 @@ wss.on("connection", async (socket, request) => {
     console.log(`${socket.uniqueId} message received`);
     if (process.env.DEFAULT_URL) {
       const response = await axios.post(process.env.DEFAULT_URL, { connectionId: socket.uniqueId, body: JSON.parse(data), query: {} });
-      // socket.send(JSON.stringify(response.data));
+      socket.send(JSON.stringify(response.data));
     }
   });
 
@@ -50,7 +50,7 @@ wss.on("connection", async (socket, request) => {
   if (process.env.CONNECT_URL) {
     const response = await axios.post(process.env.CONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
     console.log(response.data)
-    socket.send(JSON.stringify(response.data));
+    // socket.send(JSON.stringify(response.data));
   }
 });
 
