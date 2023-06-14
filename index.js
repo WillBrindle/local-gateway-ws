@@ -87,8 +87,20 @@ app.post('/@connections/:connectionId', (req, res) => {
     }
   });
 
-  res.send('Hello World!')
+  res.json({ success: true });
 });
+
+app.delete('/@connections/:connectionId', (req, res) => {
+  const { connectionId } = req.params;
+
+  wss.clients.forEach((ws) => {
+    if (ws.uniqueId === connectionId) {
+      ws.close();
+    }
+  });
+
+  res.json({ success: true });
+})
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
