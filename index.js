@@ -2,9 +2,27 @@ import axios from 'axios';
 import express from "express";
 import { WebSocketServer } from 'ws';
 import { v4 as uuid } from "uuid";
+import fs from "fs";
+import https from "https";
+
+
+const useHttps = fs.existsSync("/opt/gateway/localhost-key.pem") && fs.existsSync("/opt/gateway/localhost.pem");
+console.log(`Using HTTPS: ${useHttps}`);
+
+const server = useHttps ? https.createServer({
+  key: fs.readFileSync("/opt/gateway/localhost-key.pem"),
+  cert: fs.readFileSync("/opt/gateway/localhost.pem")
+}) : undefined;
+
+if (server) {
+  // server.addListener('upgrade', (req, res, head) => console.log('UPGRADE:', req.url));
+  server.on('error', (err) => console.error(err));
+  server.listen(process.env.WS_SERVER_PORT || 3006, () => console.log(`Https running on port ${process.env.WS_SERVER_PORT || 3006}`));
+}
 
 const wss = new WebSocketServer({
-  port: process.env.WS_SERVER_PORT || 3006,
+  port: server ? undefined : process.env.WS_SERVER_PORT || 3006,
+  server,
   perMessageDeflate: {
     zlibDeflateOptions: {
       // See zlib defaults.
