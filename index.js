@@ -51,8 +51,12 @@ wss.on("connection", async (socket, request) => {
   socket.on("message", async (data) => {
     console.log(`${socket.uniqueId} message received`);
     if (process.env.DEFAULT_URL) {
-      const response = await axios.post(process.env.DEFAULT_URL, { connectionId: socket.uniqueId, body: JSON.parse(data), query: {} });
-      socket.send(JSON.stringify(response.data));
+      try {
+        const response = await axios.post(process.env.DEFAULT_URL, { connectionId: socket.uniqueId, body: JSON.parse(data), query: {} });
+        socket.send(JSON.stringify(response.data));
+      } catch (err) {
+        console.error("Error sending connect response", err);
+      }
     }
   });
 
@@ -60,15 +64,24 @@ wss.on("connection", async (socket, request) => {
     // send message to server
     console.log(`${socket.uniqueId} closed`);
     if (process.env.DISCONNECT_URL) {
-      const response = await axios.post(process.env.DISCONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
-      // socket.send(JSON.stringify(response.data));
+      try {
+        const response = await axios.post(process.env.DISCONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
+        // socket.send(JSON.stringify(response.data));
+      } catch (err) {
+        console.error("Error sending disconnect response", err);
+      }
     }
   });
   
   if (process.env.CONNECT_URL) {
-    const response = await axios.post(process.env.CONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
-    console.log(response.data)
-    // socket.send(JSON.stringify(response.data));
+    
+    try {
+      const response = await axios.post(process.env.CONNECT_URL, { connectionId: socket.uniqueId, body: {}, query: {} });
+      console.log(response.data)
+      // socket.send(JSON.stringify(response.data));
+    } catch (err) {
+      console.error("Error sending disconnect response", err);
+    }
   }
 });
 
